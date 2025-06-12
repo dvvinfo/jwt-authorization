@@ -19,11 +19,13 @@ export class UsersService {
     const role = await this.roleService.findOne('user');
     if (role) {
       await user.$set('roles', [role.id]);
+      user.roles = [role];
     }
     // Перезагружаем пользователя с ролями
-    return await this.userRepository.findByPk(user.id, {
-      include: { all: true },
-    });
+    // return await this.userRepository.findByPk(user.id, {
+    //   include: { all: true },
+    // });
+    return user;
   }
 
   async findAll() {
@@ -56,6 +58,13 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     await user.destroy();
+    return user;
+  }
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+      include: { all: true },
+    });
     return user;
   }
 }
