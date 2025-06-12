@@ -3,23 +3,41 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entities/user.entity';
+import { UserRoles } from 'src/roles/entities/user-roles.entity';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User) private userRepository: typeof User) {}
+  constructor(
+    @InjectModel(User) private userRepository: typeof User,
+    @InjectModel(UserRoles) private userRolesRepository: typeof UserRoles,
+    private roleService: RolesService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const user = await this.userRepository.create(createUserDto);
-    return user;
+    const role = await this.roleService.findOne('user');
+    if (role) {
+      await user.$set('roles', [role.id]);
+    }
+    // Перезагружаем пользователя с ролями
+    return await this.userRepository.findByPk(user.id, {
+      include: { all: true },
+    });
   }
 
-  findAll() {
-    const users = this.userRepository.findAll();
+  async findAll() {
+    const users = await this.userRepository.findAll({ include: { all: true } });
     return users;
   }
 
-  findOne(id: number) {
-    const user = this.userRepository.findByPk(id);
+  async findOne(id: number) {
+    const user = await this.userRepository.findByPk(id, {
+      include: { all: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     return user;
   }
 
