@@ -49,7 +49,10 @@ export class User extends Model<User, UserCreationAttrs> {
   })
   declare banned: boolean;
 
-  @ApiProperty({ example: 'Reason', description: 'Причина блокировки' })
+  @ApiProperty({
+    example: 'Пользователь не соблюдает правила',
+    description: 'Причина блокировки',
+  })
   @Column({
     type: DataType.STRING,
     allowNull: true,

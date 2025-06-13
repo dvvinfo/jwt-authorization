@@ -1,10 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entities/user.entity';
 import { UserRoles } from 'src/roles/entities/user-roles.entity';
 import { RolesService } from 'src/roles/roles.service';
+import { AddRoleDto } from './dto/add-role.dto';
+import { BanUserDto } from './dto/ban-use.dto';
 
 @Injectable()
 export class UsersService {
@@ -65,6 +72,28 @@ export class UsersService {
       where: { email },
       include: { all: true },
     });
+    return user;
+  }
+  async addRole(dto: AddRoleDto) {
+    const user = await this.userRepository.findByPk(dto.userId);
+    const role = await this.roleService.findOne(dto.value);
+    if (role && user) {
+      await user.$add('roles', role.id);
+      return dto;
+    }
+    throw new HttpException(
+      'Пользователь или роль не найдены',
+      HttpStatus.NOT_FOUND,
+    );
+  }
+  async ban(dto: BanUserDto) {
+    const user = await this.userRepository.findByPk(dto.userId);
+    if (!user) {
+      throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+    }
+    user.banned = true;
+    user.banReason = dto.banReason;
+    await user.save();
     return user;
   }
 }

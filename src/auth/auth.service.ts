@@ -15,7 +15,7 @@ export class AuthService {
   async login(userDto: CreateUserDto) {
     const user = await this.validateUser(userDto);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Неверный email или пароль');
     }
     return this.generateToken(user);
   }
@@ -58,9 +58,9 @@ export class AuthService {
       userDto.password,
       user.password,
     );
-    if (passwordEquals) {
+    if (user && passwordEquals) {
       return user;
     }
-    throw new UnauthorizedException('Неверный пароль');
+    throw new UnauthorizedException('Неверный email или пароль');
   }
 }
