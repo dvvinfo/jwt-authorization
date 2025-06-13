@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entities/user.entity';
 import { UserRoles } from 'src/roles/entities/user-roles.entity';
@@ -47,15 +46,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
-  }
-
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findByPk(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    await user.update(updateUserDto);
     return user;
   }
 

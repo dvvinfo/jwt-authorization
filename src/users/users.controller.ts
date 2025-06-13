@@ -3,14 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { Roles } from 'src/auth/roles-auth.decorator';
@@ -62,11 +60,6 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Обновить пользователя' })
   @ApiResponse({ status: 200, type: User })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
   @ApiOperation({ summary: 'Удалить пользователя' })
   @ApiResponse({ status: 200, type: User })
   @Delete(':id')
