@@ -2,6 +2,22 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Гарантируем, что папка static существует при старте приложения
+const staticPath = path.resolve(__dirname, 'static');
+if (!fs.existsSync(staticPath)) {
+  fs.mkdirSync(staticPath, { recursive: true });
+}
+// Гарантируем, что index.html существует в static
+const indexPath = path.join(staticPath, 'index.html');
+if (!fs.existsSync(indexPath)) {
+  fs.writeFileSync(
+    indexPath,
+    `<!DOCTYPE html>\n<html>\n<head>\n  <title>Static Index</title>\n</head>\n<body>\n  <h1>It works!</h1>\n</body>\n</html>\n`,
+  );
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
