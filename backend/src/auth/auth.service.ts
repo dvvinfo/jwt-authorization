@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { User } from 'src/users/entities/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(userDto: CreateUserDto) {
+  async login(userDto: CreateUserDto): Promise<AuthResponseDto> {
     const user = await this.validateUser(userDto);
     if (!user) {
       throw new UnauthorizedException('Неверный email или пароль');
@@ -20,7 +21,7 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  async registration(userDto: CreateUserDto) {
+  async registration(userDto: CreateUserDto): Promise<AuthResponseDto> {
     const candidate = await this.userService.findByEmail(userDto.email);
     if (candidate) {
       throw new UnauthorizedException(
@@ -38,14 +39,21 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  private generateToken(user: User) {
+  private generateToken(user: User): AuthResponseDto {
     const payload = {
       email: user.email,
       id: user.id,
       roles: user.roles ? user.roles.map((role) => role.value) : [],
     };
+    const token = this.jwtService.sign(payload);
+
+    // Исключаем пароль из возвращаемого объекта пользователя
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userResult } = user.get({ plain: true });
+
     return {
-      token: this.jwtService.sign(payload),
+      token,
+      user: userResult as User,
     };
   }
 

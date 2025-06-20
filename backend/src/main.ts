@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { json, urlencoded } from 'express';
 
 // Гарантируем, что папка static существует при старте приложения
 const staticPath = path.resolve(__dirname, 'static');
@@ -22,6 +23,14 @@ if (!fs.existsSync(indexPath)) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
+
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('JWT-authorization')

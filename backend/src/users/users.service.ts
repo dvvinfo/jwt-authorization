@@ -22,7 +22,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const user = await this.userRepository.create(createUserDto);
-    const role = await this.roleService.findOne('user');
+    const role = await this.roleService.findOne('USER');
     if (role) {
       await user.$set('roles', [role.id]);
       user.roles = [role];

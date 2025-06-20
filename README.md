@@ -1,98 +1,363 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# JWT Authorization Project
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Полнофункциональное приложение с JWT авторизацией, построенное на NestJS (бэкенд) и Nuxt 3 (фронтенд).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Возможности
 
-## Description
+### Бэкенд (NestJS)
+- **JWT авторизация** с токенами
+- **Ролевая система** (ADMIN, MODERATOR, USER)
+- **CRUD операции** для постов
+- **Управление пользователями** (бан, назначение ролей)
+- **Загрузка файлов** (изображения для постов)
+- **Swagger документация** API
+- **Валидация данных** с class-validator
+- **TypeORM** для работы с базой данных
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Фронтенд (Nuxt 3)
+- **Современный UI** с Tailwind CSS
+- **Авторизация и регистрация**
+- **Управление постами** (создание, редактирование, удаление)
+- **Админ панель** для управления пользователями и ролями
+- **Адаптивный дизайн**
+- **TypeScript** поддержка
+- **Pinia** для управления состоянием
 
-## Project setup
+## 📋 Требования
 
+- Node.js 18+
+- Docker и Docker Compose
+- PostgreSQL (через Docker)
+
+## 🛠 Установка и запуск
+
+### Вариант 1: Docker (Рекомендуется)
+
+#### Быстрый запуск в режиме разработки:
 ```bash
-$ npm install
+# Клонирование репозитория
+git clone <repository-url>
+cd JWT-authorization
+
+# Запуск через Docker
+chmod +x scripts/docker-dev.sh
+./scripts/docker-dev.sh
 ```
 
-## Compile and run the project
-
+#### Запуск в продакшене:
 ```bash
-# development
-$ npm run start
+# Создайте .env файл с переменными окружения
+cp .env.example .env
+# Отредактируйте .env файл
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Запуск в продакшене
+chmod +x scripts/docker-prod.sh
+./scripts/docker-prod.sh
 ```
 
-## Run tests
+#### Ручной запуск через Docker Compose:
 
+**Разработка:**
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker-compose up --build -d
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+**Продакшен:**
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker-compose -f docker-compose.prod.yml up --build -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Вариант 2: Локальная разработка
 
-## Resources
+#### 1. Клонирование репозитория
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+git clone <repository-url>
+cd JWT-authorization
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+#### 2. Запуск бэкенда
 
-## Support
+```bash
+cd backend
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Установка зависимостей
+npm install
 
-## Stay in touch
+# Запуск через Docker Compose (рекомендуется)
+docker-compose up -d
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Или локально (требует установленный PostgreSQL)
+npm run start:dev
+```
 
-## License
+Бэкенд будет доступен по адресу: `http://localhost:3000`
+Swagger документация: `http://localhost:3000/api/docs`
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+#### 3. Запуск фронтенда
+
+```bash
+cd frontend
+
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
+npm run dev
+```
+
+Фронтенд будет доступен по адресу: `http://localhost:3001`
+
+## 🔧 Конфигурация
+
+### Переменные окружения (бэкенд)
+
+Создайте файл `.env` в папке `backend`:
+
+```env
+# База данных
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_DATABASE=jwt_auth
+
+# JWT
+JWT_ACCESS_SECRET=your_jwt_secret_key
+JWT_REFRESH_SECRET=your_jwt_refresh_secret
+
+# Порт
+PORT=3000
+```
+
+### Переменные окружения (фронтенд)
+
+Создайте файл `.env` в папке `frontend`:
+
+```env
+# API URL
+NUXT_PUBLIC_API_BASE=http://localhost:3000/api
+```
+
+### Переменные окружения (продакшен)
+
+Создайте файл `.env` в корне проекта:
+
+```env
+# База данных
+DB_PASSWORD=your_secure_password
+
+# JWT
+JWT_ACCESS_SECRET=your_super_secret_jwt_access_key_here
+JWT_REFRESH_SECRET=your_super_secret_jwt_refresh_key_here
+```
+
+## 🐳 Docker контейнеры
+
+### Структура Docker файлов:
+
+```
+JWT-authorization/
+├── docker-compose.yml              # Разработка
+├── docker-compose.prod.yml         # Продакшен
+├── backend/
+│   ├── Dockerfile                  # Продакшен
+│   └── Dockerfile.dev              # Разработка
+├── frontend/
+│   ├── Dockerfile                  # Продакшен
+│   ├── Dockerfile.dev              # Разработка
+│   └── docker-compose.yml          # Локальный фронтенд
+└── scripts/
+    ├── docker-dev.sh               # Скрипт запуска разработки
+    └── docker-prod.sh              # Скрипт запуска продакшена
+```
+
+### Команды Docker:
+
+```bash
+# Разработка
+docker-compose up --build -d
+docker-compose logs -f
+docker-compose down
+
+# Продакшен
+docker-compose -f docker-compose.prod.yml up --build -d
+docker-compose -f docker-compose.prod.yml logs -f
+docker-compose -f docker-compose.prod.yml down
+
+# Отдельные сервисы
+docker-compose up postgres -d
+docker-compose up backend -d
+docker-compose up frontend -d
+```
+
+## 📚 API Endpoints
+
+### Аутентификация
+- `POST /api/auth/login` - Вход в систему
+- `POST /api/auth/registration` - Регистрация
+
+### Пользователи (требует роль ADMIN)
+- `GET /api/users` - Получить всех пользователей
+- `GET /api/users/:id` - Получить пользователя по ID
+- `POST /api/users/role` - Назначить роль пользователю
+- `POST /api/users/ban` - Забанить пользователя
+- `DELETE /api/users/:id` - Удалить пользователя
+
+### Роли (требует роль ADMIN)
+- `GET /api/roles` - Получить все роли
+- `GET /api/roles/:value` - Получить роль по значению
+- `POST /api/roles` - Создать новую роль
+
+### Посты
+- `GET /api/posts` - Получить все посты
+- `GET /api/posts/:id` - Получить пост по ID
+- `POST /api/posts` - Создать пост (требует авторизацию)
+- `PATCH /api/posts/:id` - Обновить пост (требует авторизацию)
+- `DELETE /api/posts/:id` - Удалить пост (требует авторизацию)
+
+## 👥 Роли пользователей
+
+### USER
+- Просмотр постов
+- Создание своих постов
+- Редактирование своих постов
+- Удаление своих постов
+
+### MODERATOR
+- Все возможности USER
+- Модерация постов других пользователей
+
+### ADMIN
+- Все возможности MODERATOR
+- Управление пользователями
+- Управление ролями
+- Доступ к админ панели
+
+## 🎨 Структура проекта
+
+```
+JWT-authorization/
+├── backend/                 # NestJS бэкенд
+│   ├── src/
+│   │   ├── auth/           # Модуль аутентификации
+│   │   ├── users/          # Модуль пользователей
+│   │   ├── posts/          # Модуль постов
+│   │   ├── roles/          # Модуль ролей
+│   │   └── files/          # Модуль файлов
+│   ├── docker-compose.yml  # Docker конфигурация
+│   └── package.json
+├── frontend/               # Nuxt 3 фронтенд
+│   ├── components/         # Vue компоненты
+│   ├── pages/             # Страницы приложения
+│   ├── stores/            # Pinia stores
+│   ├── composables/       # Composables
+│   ├── types/             # TypeScript типы
+│   └── package.json
+├── scripts/               # Скрипты запуска
+├── docker-compose.yml     # Общий Docker Compose
+└── README.md
+```
+
+## 🔐 Безопасность
+
+- JWT токены с временем жизни
+- Хеширование паролей (bcrypt)
+- Валидация входных данных
+- Ролевая система доступа
+- CORS настройки
+- Защита от SQL инъекций
+
+## 🧪 Тестирование
+
+### Бэкенд
+```bash
+cd backend
+npm run test          # Unit тесты
+npm run test:e2e      # E2E тесты
+npm run test:cov      # Покрытие кода тестами
+```
+
+### Фронтенд
+```bash
+cd frontend
+npm run test          # Unit тесты
+npm run test:e2e      # E2E тесты
+```
+
+## 📦 Сборка для продакшена
+
+### Бэкенд
+```bash
+cd backend
+npm run build
+npm run start:prod
+```
+
+### Фронтенд
+```bash
+cd frontend
+npm run build
+npm run preview
+```
+
+## 🐳 Docker
+
+### Запуск всего проекта через Docker
+```bash
+# Разработка
+docker-compose up --build -d
+
+# Продакшен
+docker-compose -f docker-compose.prod.yml up --build -d
+```
+
+### Отдельные сервисы
+```bash
+# Только база данных
+docker-compose up postgres -d
+
+# Только бэкенд
+docker-compose up backend -d
+
+# Только фронтенд
+docker-compose up frontend -d
+```
+
+## 🤝 Вклад в проект
+
+1. Форкните репозиторий
+2. Создайте ветку для новой функции (`git checkout -b feature/amazing-feature`)
+3. Зафиксируйте изменения (`git commit -m 'Add amazing feature'`)
+4. Отправьте в ветку (`git push origin feature/amazing-feature`)
+5. Откройте Pull Request
+
+## 📄 Лицензия
+
+Этот проект распространяется под лицензией MIT. См. файл `LICENSE` для получения дополнительной информации.
+
+## 🆘 Поддержка
+
+Если у вас возникли вопросы или проблемы:
+
+1. Проверьте [Issues](https://github.com/your-repo/issues)
+2. Создайте новое Issue с подробным описанием проблемы
+3. Убедитесь, что вы используете последнюю версию проекта
+
+## 🔄 Обновления
+
+Для обновления проекта:
+
+```bash
+# Обновление бэкенда
+cd backend
+git pull origin main
+npm install
+npm run build
+
+# Обновление фронтенда
+cd frontend
+git pull origin main
+npm install
+npm run build
+``` 
