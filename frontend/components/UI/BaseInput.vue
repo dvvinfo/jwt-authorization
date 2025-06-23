@@ -1,12 +1,13 @@
 <template>
   <div>
-    <label v-if="label" :for="name" class="block text-sm font-medium text-gray-700">
+    <label v-if="label" :for="inputId" class="block text-sm font-medium text-gray-700">
       {{ label }}
+      <span v-if="required" class="text-red-500">*</span>
     </label>
     <div class="mt-1">
       <input
-        :id="name"
-        :name="name"
+        :id="inputId"
+        :name="name || inputId"
         :type="type"
         :value="modelValue"
         @input="handleInput"
@@ -18,6 +19,9 @@
     <p v-if="error" class="mt-2 text-sm text-red-600">
       {{ error }}
     </p>
+    <p v-else-if="hint" class="mt-1 text-sm text-gray-500">
+      {{ hint }}
+    </p>
   </div>
 </template>
 
@@ -25,16 +29,24 @@
 interface Props {
   modelValue: string | number | undefined
   label?: string
-  name: string
-  type?: 'text' | 'email' | 'password' | 'number'
+  name?: string
+  type?: 'text' | 'email' | 'password' | 'number' | 'url'
   error?: string
+  hint?: string
+  required?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  type: 'text'
+  type: 'text',
+  required: false
 })
 
 const emit = defineEmits(['update:modelValue'])
+
+// Генерируем уникальный ID если не передан name
+const inputId = computed(() => {
+  return props.name || `input-${Math.random().toString(36).substr(2, 9)}`
+})
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement

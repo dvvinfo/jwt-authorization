@@ -4,6 +4,7 @@
     :to="to"
     :class="buttonClasses"
     :disabled="disabled || loading"
+    @click="$emit('click', $event)"
   >
     <svg
       v-if="loading"

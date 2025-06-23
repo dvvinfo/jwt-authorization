@@ -144,7 +144,16 @@ export const useApi = () => {
   }
 
   const getPost = async (id: number): Promise<Post> => {
-    return await apiFetch<Post>(`/posts/${id}`)
+    console.log('API: Getting post with ID:', id)
+    console.log('API: Base URL:', API_BASE_URL)
+    try {
+      const response = await apiFetch<Post>(`/posts/${id}`)
+      console.log('API: Post response:', response)
+      return response
+    } catch (error) {
+      console.error('API: Error getting post:', error)
+      throw error
+    }
   }
 
   const createPost = async (post: CreatePostRequest): Promise<Post> => {
@@ -173,11 +182,30 @@ export const useApi = () => {
     });
   }
 
-  const updatePost = async (id: number, post: UpdatePostRequest): Promise<Post> => {
-    return await authFetch<Post>(`/posts/${id}`, {
+  const updatePost = async (id: number, post: UpdatePostRequest & { image?: File | null, removeImage?: boolean }): Promise<Post> => {
+    const formData = new FormData()
+    
+    formData.append('title', post.title || '')
+    formData.append('content', post.content || '')
+    
+    if (post.image) {
+      formData.append('image', post.image)
+    } else if (post.removeImage) {
+      formData.append('removeImage', 'true')
+    }
+
+    const headers = new Headers();
+    const token = getAuthToken();
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    // Не устанавливаем Content-Type, браузер сделает это сам для FormData
+    
+    return await $fetch<Post>(`${API_BASE_URL}/posts/${id}`, {
       method: 'PATCH',
-      body: post
-    })
+      body: formData,
+      headers,
+    });
   }
 
   const deletePost = async (id: number): Promise<Post> => {

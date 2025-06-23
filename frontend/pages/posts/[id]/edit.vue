@@ -9,7 +9,11 @@
       >
         Назад
       </BaseButton>
-      <h1 class="text-3xl font-bold text-gray-900">Редактировать пост</h1>
+      <h1 v-if="postsStore.currentPost" class="text-3xl font-bold text-gray-900">
+        Редактировать пост:
+        <span class="text-gray-600 truncate">{{ postsStore.currentPost.title }}</span>
+      </h1>
+      <h1 v-else class="text-3xl font-bold text-gray-900">Редактировать пост</h1>
     </div>
 
     <!-- Loading State -->
@@ -54,14 +58,25 @@
             :error="errors.content"
           />
 
-          <BaseInput
-            v-model="state.image"
-            label="URL изображения"
-            type="url"
-            placeholder="https://example.com/image.jpg"
-            :error="errors.image"
-            hint="Необязательно. Введите URL изображения для поста"
-          />
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Изображение
+            </label>
+            <div class="mt-1 flex items-center space-x-4">
+              <img v-if="previewImage" :src="previewImage" alt="Preview" class="h-16 w-16 rounded object-cover" />
+              <div v-else class="h-16 w-16 rounded bg-gray-100 flex items-center justify-center">
+                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l-1.586-1.586a2 2 0 00-2.828 0L6 14m6-6l.01.01"></path></svg>
+              </div>
+              <input type="file" @change="handleFileChange" class="hidden" ref="fileInput" accept="image/*">
+              <BaseButton type="button" @click="triggerFileInput">
+                Выбрать файл
+              </BaseButton>
+              <BaseButton v-if="state.image || state.newImage" type="button" variant="ghost" @click="removeImage">
+                Удалить изображение
+              </BaseButton>
+            </div>
+            <p v-if="errors.image" class="mt-2 text-sm text-red-600">{{ errors.image }}</p>
+          </div>
 
           <div class="flex justify-end space-x-4">
             <BaseButton
@@ -114,28 +129,55 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { usePostsStore } from '~/stores/posts'
 import { useAuthStore } from '~/stores/auth'
 import { z } from 'zod'
+import { reactive, onMounted, ref, watch, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import BaseButton from '~/components/UI/BaseButton.vue'
+import BaseCard from '~/components/UI/BaseCard.vue'
+import BaseInput from '~/components/UI/BaseInput.vue'
+import BaseTextarea from '~/components/UI/BaseTextarea.vue'
+import BaseAlert from '~/components/UI/BaseAlert.vue'
 
 const postsStore = usePostsStore()
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+
+const fileInput = ref<HTMLInputElement | null>(null);
 
 // Состояние формы
-const state = reactive({
+const state = reactive<{
+  title: string;
+  content: string;
+  image: string | null;
+  newImage: File | null;
+}>({
   title: '',
   content: '',
-  image: ''
-})
+  image: null,
+  newImage: null
+});
 
 // Схема валидации
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 const schema = z.object({
   title: z.string().min(1, 'Заголовок обязателен').max(200, 'Заголовок не должен превышать 200 символов'),
   content: z.string().min(1, 'Содержание обязательно').max(5000, 'Содержание не должно превышать 5000 символов'),
-  image: z.string().url('Введите корректный URL').optional().or(z.literal(''))
-})
+  newImage: z
+    .instanceof(File)
+    .optional()
+    .nullable()
+    .refine((file) => !file || file.size <= MAX_FILE_SIZE, `Максимальный размер файла 5MB.`)
+    .refine(
+      (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Поддерживаются только .jpg, .jpeg, .png и .webp форматы."
+    ),
+});
 
 // Состояние загрузки и ошибок
 const loading = ref(false)
@@ -145,6 +187,40 @@ const errors = reactive({
   content: '',
   image: ''
 })
+
+// Preview for image
+const previewImage = computed(() => {
+  if (state.newImage) {
+    return URL.createObjectURL(state.newImage);
+  }
+  if (state.image) {
+    // Assuming getImageUrl is available and works correctly
+    const config = useRuntimeConfig();
+    const API_BASE_URL = config.public.apiBase.replace('/api', '');
+    return `${API_BASE_URL}/${state.image}`;
+  }
+  return null;
+});
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    state.newImage = target.files[0];
+    state.image = null; // Clear old image path
+  }
+};
+
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+const removeImage = () => {
+  state.image = null;
+  state.newImage = null;
+  if(fileInput.value) {
+    fileInput.value.value = '';
+  }
+};
 
 // Обработчик отправки формы
 const handleSubmit = async () => {
@@ -156,13 +232,18 @@ const handleSubmit = async () => {
 
   try {
     // Валидация
-    const validatedData = schema.parse(state)
+    const validatedData = schema.parse({
+      title: state.title,
+      content: state.content,
+      newImage: state.newImage
+    })
     
-    const postId = parseInt($route.params.id)
+    const postId = parseInt(route.params.id as string)
     const result = await postsStore.updatePost(postId, {
       title: validatedData.title,
       content: validatedData.content,
-      image: validatedData.image || ''
+      image: state.newImage,
+      removeImage: !state.newImage && !state.image
     })
     
     if (result.success) {
@@ -175,14 +256,10 @@ const handleSubmit = async () => {
       // Обработка ошибок валидации
       err.errors.forEach((validationError) => {
         const field = validationError.path[0]
-        if (typeof field === 'string') {
-          if (field === 'title') {
-            errors.title = validationError.message
-          } else if (field === 'content') {
-            errors.content = validationError.message
-          } else if (field === 'image') {
-            errors.image = validationError.message
-          }
+        if (field === 'newImage') {
+          errors.image = validationError.message;
+        } else if (typeof field === 'string') {
+          errors[field as keyof typeof errors] = validationError.message
         }
       })
     } else {
@@ -194,28 +271,27 @@ const handleSubmit = async () => {
   }
 }
 
-// Загружаем пост и заполняем форму
-onMounted(async () => {
-  const postId = parseInt($route.params.id)
-  if (isNaN(postId)) {
-    await router.push('/posts')
-    return
-  }
-  
-  await postsStore.fetchPost(postId)
-  
-  // Проверяем права доступа
-  if (postsStore.currentPost) {
-    const canEdit = postsStore.currentPost.userId === authStore.user?.id || authStore.isAdmin
+// Заполняем форму, когда пост загружен
+watch(() => postsStore.currentPost, (newPost) => {
+  if (newPost) {
+    // Проверяем права доступа
+    const canEdit = newPost.userId === authStore.user?.id || authStore.isAdmin
     if (!canEdit) {
-      await router.push(`/posts/${postId}`)
+      router.push(`/posts/${newPost.id}`)
       return
     }
-    
-    // Заполняем форму данными поста
-    state.title = postsStore.currentPost.title
-    state.content = postsStore.currentPost.content
-    state.image = postsStore.currentPost.image || ''
+
+    state.title = newPost.title
+    state.content = newPost.content
+    state.image = newPost.image || null
+    state.newImage = null
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  const postId = parseInt(route.params.id as string)
+  if (!postsStore.currentPost || postsStore.currentPost.id !== postId) {
+    postsStore.fetchPost(postId)
   }
 })
 </script> 

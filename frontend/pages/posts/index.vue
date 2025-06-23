@@ -86,7 +86,7 @@
         <NuxtLink :to="`/posts/${post.id}`">
           <img
             v-if="post.image"
-            :src="post.image"
+            :src="getImageUrl(post.image)"
             :alt="post.title"
             class="w-full h-48 object-cover rounded-t-lg"
           />
@@ -170,6 +170,19 @@ import BaseAvatar from "~/components/UI/BaseAvatar.vue";
 
 const postsStore = usePostsStore();
 const authStore = useAuthStore();
+const config = useRuntimeConfig();
+const API_BASE_URL = config.public.apiBase;
+
+const getImageUrl = (imagePath: string) => {
+  if (!imagePath) return '';
+  // Проверяем, является ли путь уже полным URL
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+  // Убираем /api из базового URL, если он там есть, т.к. статика отдается с корня
+  const baseUrl = API_BASE_URL.replace('/api', '');
+  return `${baseUrl}/${imagePath}`;
+};
 
 // Форматирование даты
 const formatDate = (dateString: string) => {

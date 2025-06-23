@@ -47,8 +47,13 @@ export class PostsController {
   @ApiOperation({ summary: 'Обновление поста по ID' })
   @ApiResponse({ status: 200, type: Post })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  @UseInterceptors(FileInterceptor('image'))
+  update(
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+    @UploadedFile() image?: Express.Multer.File,
+  ) {
+    return this.postsService.update(+id, updatePostDto, image);
   }
 
   @ApiOperation({ summary: 'Удаление поста по ID' })

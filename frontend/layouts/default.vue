@@ -148,6 +148,9 @@ const handleLogout = () => {
 
 // Закрываем меню при клике вне его
 onMounted(() => {
+  // Инициализируем аутентификацию
+  authStore.initAuth()
+  
   document.addEventListener('click', (event) => {
     const target = event.target as HTMLElement
     if (!target.closest('.relative')) {

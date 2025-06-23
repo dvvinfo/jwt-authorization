@@ -23,4 +23,18 @@ export class FilesService {
       );
     }
   }
+
+  deleteFile(fileName: string): void {
+    try {
+      const filePath = path.resolve(__dirname, '..', 'static', fileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch (e: any) {
+      console.log(e);
+      // Не выбрасываем ошибку, чтобы не прерывать основной процесс (например, обновление поста)
+      // Можно добавить более сложную логику логирования
+      console.error(`Ошибка при удалении файла ${fileName}`);
+    }
+  }
 }

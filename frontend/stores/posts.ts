@@ -34,12 +34,16 @@ export const usePostsStore = defineStore('posts', () => {
     error.value = null
     
     try {
+      console.log('Fetching post with ID:', id)
       const response = await api.getPost(id)
+      console.log('Post fetched successfully:', response)
       currentPost.value = response
       return response
     } catch (err: unknown) {
-      const errorData = err as { data?: { message?: string } }
-      error.value = errorData.data?.message || 'Ошибка загрузки поста'
+      console.error('Error fetching post:', err)
+      const errorData = err as { data?: { message?: string }, status?: number }
+      const errorMessage = errorData.data?.message || `Ошибка загрузки поста (${errorData.status || 'unknown'})`
+      error.value = errorMessage
       throw err
     } finally {
       isLoading.value = false
@@ -65,7 +69,7 @@ export const usePostsStore = defineStore('posts', () => {
   }
 
   // Обновление поста
-  const updatePost = async (id: number, postData: UpdatePostRequest) => {
+  const updatePost = async (id: number, postData: UpdatePostRequest & { image?: File | null, removeImage?: boolean }) => {
     isLoading.value = true
     error.value = null
     
@@ -83,11 +87,12 @@ export const usePostsStore = defineStore('posts', () => {
         currentPost.value = response
       }
       
-      return response
+      return { success: true, data: response }
     } catch (err: unknown) {
       const errorData = err as { data?: { message?: string } }
-      error.value = errorData.data?.message || 'Ошибка обновления поста'
-      throw err
+      const errorMessage = errorData.data?.message || 'Ошибка обновления поста'
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
     } finally {
       isLoading.value = false
     }
@@ -141,6 +146,7 @@ export const usePostsStore = defineStore('posts', () => {
     posts: readonly(posts),
     currentPost: readonly(currentPost),
     isLoading: readonly(isLoading),
+    loading: readonly(isLoading),
     error: readonly(error),
     
     // Геттеры
